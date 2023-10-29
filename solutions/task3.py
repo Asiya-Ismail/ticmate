@@ -23,41 +23,48 @@ search_params = {
      } 
 response = requests.get(search_url, params=search_params) 
 search_results = response.json()["data"] 
-# Some variables to store interesting information 
-min_price = float("inf") 
-max_price = float("-inf") 
-cities = {} 
-related_products = {} 
-# Iterate over the search results 
-for product in search_results: 
-    # Check if the product has a location 
-    if "location" in product: 
-        city = product["location"].get("city") 
-        if city: 
-            # Increment the city count if city in cities
-            cities[city] = cities.get(city, 0) + 1
-        # Check if the product has a price
-        if "price" in product:
-            price = product["price"].get("minPrice")
-            if price:
-                # Update the min and max prices
-                if price < min_price:
-                    min_price = price
-                if price > max_price:
-                    max_price = price
-            # Make a request to get the related products
-            related_params = {
-                "auth": auth,
-                "site": site,
-                "lang": lang,
-                "limit": limit,
-                "include_fields": include_fields,
-                "start_date": "2023-10-27",
-                "id": product["id"]
-            }
-            response = requests.get(related_url, params=related_params)
-            related_products[product["name"]] = response.json()["data"]
-
+if response.status_code == 200:  
+    # Some variables to store interesting information 
+    min_price = float("inf") 
+    max_price = float("-inf") 
+    cities = {} 
+    related_products = {} 
+    # Iterate over the search results 
+    for product in search_results: 
+        # Check if the product has a location 
+        if "location" in product: 
+            city = product["location"].get("city") 
+            if city: 
+                # Increment the city count if city in cities
+                cities[city] = cities.get(city, 0) + 1
+            # Check if the product has a price
+            if "price" in product:
+                price = product["price"].get("minPrice")
+                if price:
+                    # Update the min and max prices
+                    if price < min_price:
+                        min_price = price
+                    if price > max_price:
+                        max_price = price
+                # Make a request to get the related products
+                related_params = {
+                    "auth": auth,
+                    "site": site,
+                    "lang": lang,
+                    "limit": limit,
+                    "include_fields": include_fields,
+                    "start_date": "2023-10-29",
+                    "id": product["id"]
+                }
+                response = requests.get(related_url, params=related_params)
+                if response.status_code == 200:  
+                    related_products[product["name"]] = response.json()["data"]
+                else:
+                    # Print the error message
+                    print(f"Error {response.status_code}: {response.json()['message']}")
+else:
+    # Print the error message
+    print(f"Error {response.status_code}: {response.json()['message']}")
 
 # Print the report
 print("Report:")
