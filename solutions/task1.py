@@ -20,17 +20,21 @@ search_params = {
      "sort_by": sort_by, 
      "text_search": text_search 
      } 
-response = requests.get(search_url, params=search_params) 
-search_results = response.json()
-products=[]
-# Iterate over the search results 
-for product in search_results["data"]:
-    products.append({
-            "Name": product["name"],
-            "ID": product["id"],
-            "Price": product["price"]["minPrice"]
-        })    
-    # Pretty print the product data
-    print(json.dumps(products, indent=2))
+response = requests.get(search_url, params=search_params)
+if response.status_code == 200: 
+    search_results = response.json()
+    products=[]
+    # Iterate over the search results 
+    for product in search_results["data"]:
+        products.append({
+                "Name": product["name"],
+                "ID": product["id"],
+                "Price": product["price"]["minPrice"]
+            })    
+        # Pretty print the product data
+        print(json.dumps(products, indent=2))
+else:
+    # Print the error message
+    print(f"Error {response.status_code}: {response.json()['message']}")
 
 
